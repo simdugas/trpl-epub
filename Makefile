@@ -1,3 +1,4 @@
+BUILD_DATE=$(shell date +%Y-%m-%d)
 INPUT_DIR=book/second-edition/src/
 CHAPTERS=$(shell ls book/second-edition/src/ch*)
 APPENDIX=$(shell ls book/second-edition/src/appendix*)
@@ -10,7 +11,7 @@ clean:
 
 dist/trpl.epub:
 	mkdir -p dist
-	@pandoc -o dist/trpl.epub \
+	@pandoc -o dist/trpl-$(BUILD_DATE).epub \
 		--resource-path=$(SRC_DIR) \
 		title.txt \
 		$(INPUT_DIR)/SUMMARY.md \
