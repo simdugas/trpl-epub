@@ -1,22 +1,40 @@
 BUILD_DATE=$(shell date +%Y-%m-%d)
-INPUT_DIR=book/second-edition/src/
-CHAPTERS=$(shell ls book/second-edition/src/ch*)
-APPENDIX=$(shell ls book/second-edition/src/appendix*)
-SRC_DIR="book/second-edition/src"
+ROOT_DIR=book/second-edition/
+SRC_DIR=$(ROOT_DIR)/src/
+NOSTARCH_DIR=$(ROOT_DIR)/nostarch/
+THEME_DIR=book/first-edition/src/theme/
+PANDOC_OPTS= \
+		--strip-comments \
+		--resource-path=$(SRC_DIR) \
+		--css=rust.css \
+		--highlight-style=tango \
+		--from=markdown+smart+grid_tables+pipe_tables-simple_tables+raw_html+implicit_figures+footnotes+intraword_underscores+auto_identifiers-inline_code_attributes
 
 all: dist
 
 clean:
-	rm -rf dist/
+	rm -rf dist/ $(NOSTARCH_DIR)
 
-dist/trpl.epub:
+$(NOSTARCH_DIR):
+	chmod +x $(ROOT_DIR)/nostarch.sh
+	cd $(ROOT_DIR) && ./nostarch.sh
+
+dist/trpl-$(BUILD_DATE).epub:
 	mkdir -p dist
 	@pandoc -o dist/trpl-$(BUILD_DATE).epub \
-		--resource-path=$(SRC_DIR) \
+		$(PANDOC_OPTS) \
 		title.txt \
-		$(INPUT_DIR)/SUMMARY.md \
-		$(INPUT_DIR)/foreword.md \
-		$(CHAPTERS) \
-		$(APPENDIX)
+		$(SRC_DIR)/SUMMARY.md \
+		$(SRC_DIR)/foreword.md \
+		$(shell ls book/second-edition/src/ch*) \
+		$(shell ls book/second-edition/src/appendix*)
 
-dist: dist/trpl.epub
+dist/trpl-ns-$(BUILD_DATE).epub: $(NOSTARCH_DIR)
+	mkdir -p dist
+	@pandoc -o dist/trpl-ns-$(BUILD_DATE).epub \
+		$(PANDOC_OPTS) \
+		title.txt \
+		$(shell ls $(NOSTARCH_DIR)/chapter*.md) \
+		$(NOSTARCH_DIR)/appendix.md
+
+dist: dist/trpl-$(BUILD_DATE).epub dist/trpl-ns-$(BUILD_DATE).epub
