@@ -2,6 +2,8 @@
 Generates an epub for trpl using pandoc.
 
 ## Build
-```
-make
+```bash
+$ make
+$ ls dist/
+trpl-2018-04-04.epub
 ```
